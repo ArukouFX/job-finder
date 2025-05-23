@@ -214,6 +214,14 @@ $categorias = obtenerCategorias();
             
             <div class="row g-4">
                 <?php foreach ($categorias as $categoria): ?>
+                    <?php
+                    $total_vacantes_categoria = 0;
+                    foreach ($vacantes as $v) {
+                        if ($v['categoria_id'] == $categoria['id'] && $v['activa']) {
+                            $total_vacantes_categoria++;
+                        }
+                    }
+                    ?>
                     <div class="col-6 col-md-3">
                         <a href="vacantes.php?categoria=<?= $categoria['id'] ?>" class="text-decoration-none">
                             <div class="card h-100 text-center hover-shadow">
@@ -223,7 +231,7 @@ $categorias = obtenerCategorias();
                                     </div>
                                     <h5 class="card-title"><?= htmlspecialchars($categoria['nombre']) ?></h5>
                                     <p class="card-text small text-muted">
-                                        <?= rand(5, 30) ?> vacantes disponibles
+                                        <?= $total_vacantes_categoria ?> vacante<?= $total_vacantes_categoria == 1 ? '' : 's' ?> disponible<?= $total_vacantes_categoria == 1 ? '' : 's' ?>
                                     </p>
                                 </div>
                             </div>

@@ -19,15 +19,19 @@ function subirArchivo($file, $directory) {
         return false;
     }
 
-    // Crear directorio si no existe
-    if (!is_dir($directory)) {
-        mkdir($directory, 0777, true);
+    // Asegurar ruta absoluta desde la raíz del proyecto
+    $rootPath = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+    $directory = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR;
+    $absoluteDirectory = $rootPath . $directory;
+
+    if (!is_dir($absoluteDirectory)) {
+        mkdir($absoluteDirectory, 0777, true);
     }
 
     // Generar nombre único
     $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
     $nombreArchivo = uniqid() . '.' . $extension;
-    $rutaDestino = $directory . $nombreArchivo;
+    $rutaDestino = $absoluteDirectory . $nombreArchivo;
 
     if (move_uploaded_file($file['tmp_name'], $rutaDestino)) {
         return $nombreArchivo;

@@ -36,6 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crear_vacante'])) {
     exit;
 }
 
+// Procesar eliminación de vacante
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_vacante_id'])) {
+    $vacante_id = intval($_POST['eliminar_vacante_id']);
+    // Eliminar postulaciones asociadas primero
+    $stmt = $db->prepare("DELETE FROM postulaciones WHERE vacante_id = ?");
+    $stmt->execute([$vacante_id]);
+    // Ahora eliminar la vacante
+    $stmt = $db->prepare("DELETE FROM vacantes WHERE id = ?");
+    $stmt->execute([$vacante_id]);
+    header('Location: vacantes.php?eliminada=1');
+    exit;
+}
+
 // Obtener todas las vacantes
 $stmt = $db->query("SELECT v.*, c.nombre as categoria_nombre FROM vacantes v JOIN categorias c ON v.categoria_id = c.id ORDER BY v.fecha_publicacion DESC");
 $vacantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -51,6 +64,10 @@ include '../includes/header.php';
     
     <?php if (isset($_GET['success'])): ?>
         <div class="alert alert-success">Vacante creada exitosamente!</div>
+    <?php endif; ?>
+    
+    <?php if (isset($_GET['eliminada'])): ?>
+        <div class="alert alert-success">Vacante eliminada correctamente.</div>
     <?php endif; ?>
     
     <div class="card mb-4">
@@ -148,6 +165,10 @@ include '../includes/header.php';
                                 <td>
                                     <a href="editar_vacante.php?id=<?= $vacante['id'] ?>" class="btn btn-sm btn-warning">Editar</a>
                                     <a href="solicitantes.php?id=<?= $vacante['id'] ?>" class="btn btn-sm btn-info">Ver Solicitantes</a>
+                                    <form method="POST" action="" style="display:inline-block" onsubmit="return confirm('¿Seguro que deseas eliminar esta vacante?');">
+                                        <input type="hidden" name="eliminar_vacante_id" value="<?= $vacante['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
